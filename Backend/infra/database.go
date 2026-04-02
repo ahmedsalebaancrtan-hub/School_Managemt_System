@@ -1,6 +1,8 @@
 package infra
 
 import (
+	"fmt"
+
 	"github.com/ahmed/capstone_project/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -9,8 +11,9 @@ import (
 var DB *gorm.DB
 
 func ConnectDb() {
+	config := Configuration
 
-	dsn := "host=localhost user=postgres password=12345 dbname=schoolsystem  port=5432 sslmode=disable"
+	dsn := fmt.Sprintf("host=%s user=%s password=%s port=%s dbname=%s sslmode=disable", config.DBHost, config.DBUser, config.DBPassword, config.DBPort, config.DBName)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 

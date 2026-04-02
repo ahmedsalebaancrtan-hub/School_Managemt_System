@@ -6,4 +6,7 @@ var (
 	//user errors
 
 	FailedToCreatedUser = "Failed to created New User"
+
+	//unuthorized
+	UnUthorisedAccess = "invalid credentials "
 )

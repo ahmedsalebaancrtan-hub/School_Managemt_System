@@ -23,7 +23,7 @@ func (repo *UserRepo) GetUserByEmail(email string) (models.User, error) {
 
 	var user models.User
 
-	err := repo.DB.Where("email = ?", email).First(&user).Error
+	err := repo.DB.Where("email_address = ?", email).First(&user).Error
 
 	if err != nil {
 		return models.User{}, err
