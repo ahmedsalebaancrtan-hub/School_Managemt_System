@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/ahmed/capstone_project/infra"
@@ -9,6 +10,10 @@ import (
 )
 
 func main() {
+	slog.Info("initialised env variable")
+	infra.InitEnv()
+
+	Config := infra.Configuration
 
 	slog.Info("Connect to database")
 	infra.ConnectDb()
@@ -20,5 +25,5 @@ func main() {
 
 	slog.Info("application is running on port :500")
 
-	r.Run(":5000")
+	r.Run(fmt.Sprintf(":%s", Config.Port))
 }

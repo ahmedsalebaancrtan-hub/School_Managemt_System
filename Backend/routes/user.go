@@ -14,6 +14,7 @@ func RegIsterRouter(r *gin.Engine) {
 
 	{
 		UserGroup.POST("/register", UserHandler.CreateUser)
+		UserGroup.POST("/Login", UserHandler.LoginUser)
 	}
 
 }
