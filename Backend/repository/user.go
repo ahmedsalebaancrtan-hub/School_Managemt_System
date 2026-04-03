@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/ahmed/capstone_project/models"
 	"gorm.io/gorm"
 )
@@ -29,4 +31,19 @@ func (repo *UserRepo) GetUserByEmail(email string) (models.User, error) {
 		return models.User{}, err
 	}
 	return user, nil
+}
+
+func (repo *UserRepo) UpdatesLastLogin(UserID uint) error {
+
+	// err := repo.DB.Model(&models.User{}).Update("Last_Login", time.Now()).Error
+
+	err := repo.DB.Model(&models.User{}).Where("id = ?", UserID).Updates(map[string]interface{}{
+		"Last_Login": time.Now(),
+	}).Error
+
+	if err != nil {
+		return err
+
+	}
+	return nil
 }

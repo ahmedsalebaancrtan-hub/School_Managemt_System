@@ -7,14 +7,23 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func GenerateJwt(sub string, ExpireIn int64) (string, error) {
+func GenerateJwt(sub string, ExpireIn int64, isrefreshToken bool) (string, error) {
 	config := infra.Configuration
-	jwt_secret_key := []byte(config.JwtSecret)
+
+	var jwtsecret []byte
+
+	if isrefreshToken {
+		jwtsecret = []byte(config.Refresh_jwt_token)
+	} else {
+		jwtsecret = []byte(config.Access_jwt_Token)
+	}
+
 	claims := jwt.MapClaims{
-		"sub": sub,
-		"npf": time.Now(),
-		"exo": ExpireIn,
+		"sub":            sub,
+		"npf":            time.Now(),
+		"exp":            ExpireIn,
+		"isrefreshToken": isrefreshToken,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwt_secret_key)
+	return token.SignedString(jwtsecret)
 }

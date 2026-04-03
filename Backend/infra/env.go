@@ -8,13 +8,14 @@ import (
 )
 
 type AppConfig struct {
-	Port       string
-	DBHost     string
-	DBUser     string
-	DBPassword string
-	DBPort     string
-	DBName     string
-	JwtSecret  string
+	Port              string
+	DBHost            string
+	DBUser            string
+	DBPassword        string
+	DBPort            string
+	DBName            string
+	Access_jwt_Token  string
+	Refresh_jwt_token string
 }
 
 var Configuration AppConfig
@@ -31,6 +32,7 @@ func InitEnv() {
 	Configuration.DBName = os.Getenv("DB_Name")
 	Configuration.DBPassword = os.Getenv("DB_Password")
 	Configuration.DBPort = os.Getenv("DB_Port")
-	Configuration.JwtSecret = os.Getenv("jwt_secret_key")
+	Configuration.Access_jwt_Token = os.Getenv("Access_jwt_Token")
+	Configuration.Refresh_jwt_token = os.Getenv("Refresh_jwt_Token")
 
 }

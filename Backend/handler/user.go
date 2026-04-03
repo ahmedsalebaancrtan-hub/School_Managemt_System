@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/ahmed/capstone_project/dto"
@@ -79,5 +80,39 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 		"is_sucess": true,
 		"messege":   "User Login sucessfully!",
 		"data":      resp,
+	})
+}
+
+func (h *UserHandler) WhoAmI(c *gin.Context) {
+	isLogged := h.Userservice.WhoAmI()
+
+	c.JSON(http.StatusOK, gin.H{
+		"is_sucess": true,
+		"messege":   "User Login sucessfully!",
+		"data":      isLogged,
+	})
+
+}
+
+func (h *UserHandler) RefreshToken(c *gin.Context) {
+	email := c.GetString("user_email")
+
+	response, StatusCode, err := h.Userservice.RefreshToken(email)
+
+	if err != nil {
+		slog.Info("failed to refresh token", "error", err.Error())
+
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message":    "Unauthorized",
+			"is_success": false,
+			"data":       nil,
+		})
+		return
+	}
+
+	c.JSON(StatusCode, gin.H{
+		"message":    "User refreshed successfully!",
+		"is_success": true,
+		"data":       response,
 	})
 }
