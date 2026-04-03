@@ -87,7 +87,7 @@ func (svc *Userservice) LoginUser(data dto.LoginUserRequest) (response *dto.Logi
 
 	}
 
-	AccessToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(15*time.Minute).Unix())
+	AccessToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(15*time.Minute).Unix(), false)
 
 	if err != nil {
 		slog.Error("Failed to Generate access token")
@@ -96,7 +96,7 @@ func (svc *Userservice) LoginUser(data dto.LoginUserRequest) (response *dto.Logi
 
 		return
 	}
-	RefreshToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(72*time.Hour).Unix())
+	RefreshToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(72*time.Hour).Unix(), true)
 
 	if err != nil {
 		slog.Error("Failed to Generate refresh token token")
@@ -113,6 +113,47 @@ func (svc *Userservice) LoginUser(data dto.LoginUserRequest) (response *dto.Logi
 	}
 	StatusCode = http.StatusOK
 	err = nil
+
+	err = svc.repo.UpdatesLastLogin(user.ID)
+	if err != nil {
+		slog.Error("Failed to Update Last_Login")
+		return nil, http.StatusUnauthorized, errors.New(constant.DefaultErrorMsg)
+
+	}
 	return
+
+}
+
+func (svc *Userservice) WhoAmI() bool {
+	return true
+}
+
+func (svc *Userservice) RefreshToken(email string) (*dto.LoginUserResponse, int, error) {
+	user, err := svc.repo.GetUserByEmail(email)
+	if err != nil {
+		return nil, http.StatusUnauthorized, errors.New(constant.DefaultErrorMsg)
+	}
+
+	AccessToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(15*time.Minute).Unix(), false)
+
+	if err != nil {
+		slog.Error("Failed to Generate access token")
+		err = errors.New(constant.DefaultErrorMsg)
+
+	}
+
+	RefreshToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(72*time.Hour).Unix(), true)
+
+	if err != nil {
+		slog.Error("Failed to Generate refresh token token")
+		err = errors.New(constant.DefaultErrorMsg)
+
+	}
+
+	return &dto.LoginUserResponse{
+		User:         user,
+		AccessToken:  AccessToken,
+		RefreshToken: RefreshToken,
+	}, http.StatusOK, nil
 
 }
