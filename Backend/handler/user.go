@@ -33,6 +33,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"messege":    "failed to Bind  body request",
 			"is_success": false,
+			"error":      err.Error(),
 		})
 		return
 	}

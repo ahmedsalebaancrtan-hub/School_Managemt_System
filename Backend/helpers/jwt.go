@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/ahmed/capstone_project/infra"
+	"github.com/ahmed/capstone_project/models"
 	"github.com/golang-jwt/jwt"
 )
 
-func GenerateJwt(sub string, ExpireIn int64, isrefreshToken bool) (string, error) {
+func GenerateJwt(role models.Role, sub string, ExpireIn int64, isrefreshToken bool) (string, error) {
 	config := infra.Configuration
 
 	var jwtsecret []byte
@@ -23,6 +24,7 @@ func GenerateJwt(sub string, ExpireIn int64, isrefreshToken bool) (string, error
 		"npf":            time.Now(),
 		"exp":            ExpireIn,
 		"isrefreshToken": isrefreshToken,
+		"role":           role,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtsecret)

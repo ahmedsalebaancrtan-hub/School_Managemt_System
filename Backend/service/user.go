@@ -50,8 +50,9 @@ func (svc *Userservice) CreateUser(data *dto.CreateUserDto) (int, error) {
 
 	err = svc.repo.CreateUser(models.User{
 		FullName:     data.FullName,
-		EmailAddress: data.EmailAddress,
+		EmailAddress: email,
 		Password:     data.Password,
+		Role:         data.Role,
 	})
 
 	if err != nil {
@@ -87,7 +88,7 @@ func (svc *Userservice) LoginUser(data dto.LoginUserRequest) (response *dto.Logi
 
 	}
 
-	AccessToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(15*time.Minute).Unix(), false)
+	AccessToken, err := helpers.GenerateJwt(user.Role, user.EmailAddress, time.Now().Add(15*time.Minute).Unix(), false)
 
 	if err != nil {
 		slog.Error("Failed to Generate access token")
@@ -96,7 +97,7 @@ func (svc *Userservice) LoginUser(data dto.LoginUserRequest) (response *dto.Logi
 
 		return
 	}
-	RefreshToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(72*time.Hour).Unix(), true)
+	RefreshToken, err := helpers.GenerateJwt(user.Role, user.EmailAddress, time.Now().Add(72*time.Hour).Unix(), true)
 
 	if err != nil {
 		slog.Error("Failed to Generate refresh token token")
@@ -134,7 +135,7 @@ func (svc *Userservice) RefreshToken(email string) (*dto.LoginUserResponse, int,
 		return nil, http.StatusUnauthorized, errors.New(constant.DefaultErrorMsg)
 	}
 
-	AccessToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(15*time.Minute).Unix(), false)
+	AccessToken, err := helpers.GenerateJwt(user.Role, user.EmailAddress, time.Now().Add(15*time.Minute).Unix(), false)
 
 	if err != nil {
 		slog.Error("Failed to Generate access token")
@@ -142,7 +143,7 @@ func (svc *Userservice) RefreshToken(email string) (*dto.LoginUserResponse, int,
 
 	}
 
-	RefreshToken, err := helpers.GenerateJwt(user.EmailAddress, time.Now().Add(72*time.Hour).Unix(), true)
+	RefreshToken, err := helpers.GenerateJwt(user.Role, user.EmailAddress, time.Now().Add(72*time.Hour).Unix(), true)
 
 	if err != nil {
 		slog.Error("Failed to Generate refresh token token")
