@@ -14,9 +14,9 @@ func RegIsterRouter(r *gin.Engine) {
 	UserGroup := ApiGroup.Group("/users")
 
 	{
-		UserGroup.POST("/register", UserHandler.CreateUser)
+		UserGroup.POST("/register", middleware.Authenticated(), middleware.RequiredRole("ADMIN"), UserHandler.CreateUser)
 		UserGroup.POST("/Login", UserHandler.LoginUser)
-		UserGroup.GET("/whoami", middleware.Authenticated(), UserHandler.WhoAmI)
+		UserGroup.GET("/whoami", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS", "CASHIER"), UserHandler.WhoAmI)
 		UserGroup.POST("/Refresh_token", middleware.RefreshAuthenticated(), UserHandler.RefreshToken)
 	}
 
