@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ahmed/capstone_project/infra"
 	"github.com/gin-gonic/gin"
@@ -88,8 +89,10 @@ func Authenticated() gin.HandlerFunc {
 // Middleware-ka Refresh Token
 func RefreshAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		authHeader := c.GetHeader("Authorization")
 
+		// 1. Check header
 		if authHeader == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message":    "Missing Authorization header",
@@ -98,6 +101,7 @@ func RefreshAuthenticated() gin.HandlerFunc {
 			return
 		}
 
+		// 2. Check Bearer format
 		if !strings.HasPrefix(authHeader, "Bearer ") {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message":    "Invalid Authorization header format",
@@ -106,16 +110,22 @@ func RefreshAuthenticated() gin.HandlerFunc {
 			return
 		}
 
+		// 3. Extract token
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &Claims{}
 
+		// 4. Parse token
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+
+			// Signing method check (GOOD 👍)
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
+
 			return []byte(infra.Configuration.Refresh_jwt_token), nil
 		})
 
+		// 5. Validate token
 		if err != nil || !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message":    "Unauthorized access",
@@ -124,8 +134,18 @@ func RefreshAuthenticated() gin.HandlerFunc {
 			return
 		}
 
-		// Context key la mid ah handler-ka
+		// 6. (IMPORTANT) Check expiration manually
+		if claims.ExpiresAt < time.Now().Unix() {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message":    "Refresh token expired",
+				"is_success": false,
+			})
+			return
+		}
+
+		// 7. Set context
 		c.Set("user_email", claims.Sub)
+
 		c.Next()
 	}
 }
