@@ -31,7 +31,7 @@ func (svc *ClassService) CreateClass(data *dto.CreateClassdto) (int, models.Clas
 	err := svc.classRepo.CreateClass(NewClass)
 
 	if err != nil {
-		slog.Error("failed to register new Class", err.Error())
+
 		return http.StatusInternalServerError, models.Class{}, errors.New(constant.DefaultErrorMsg)
 	}
 
