@@ -9,4 +9,6 @@ var (
 
 	//unuthorized
 	UnUthorisedAccess = "invalid credentials "
+
+	NotFound = "not found"
 )
