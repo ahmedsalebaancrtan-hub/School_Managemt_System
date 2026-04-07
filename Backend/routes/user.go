@@ -11,6 +11,7 @@ func RegIsterRouter(r *gin.Engine) {
 
 	UserHandler := handler.RegisterUserHandler()
 	ClassHandler := handler.RegisterClassHandler()
+	FamilyHandler := handler.RegisterFamilyHandler()
 	UserGroup := ApiGroup.Group("/users")
 
 	{
@@ -26,6 +27,11 @@ func RegIsterRouter(r *gin.Engine) {
 		ClassGroup.PUT("/update/:classid", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS"), ClassHandler.UpdateClass)
 		ClassGroup.GET("/list", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS", "CASHIER"), ClassHandler.FindAll)
 		ClassGroup.GET("/details/:classid", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS", "CASHIER"), ClassHandler.FindByid)
+	}
+
+	FamilyGroup := ApiGroup.Group("/family")
+	{
+		FamilyGroup.POST("/create", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "CASHIER"), FamilyHandler.CreateFamily)
 	}
 
 }
