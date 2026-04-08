@@ -48,3 +48,14 @@ func (svc *StudentService) CreateStudent(data dto.CreateStudentDto) (int, error)
 	return http.StatusCreated, nil
 
 }
+
+func (svc *StudentService) ListStudent() (int, []models.Student, error) {
+	data, err := svc.StudentRepo.ListStudent()
+	if err != nil {
+		slog.Info("Failed to list student", "error", err)
+		return http.StatusInternalServerError, nil, errors.New(constant.DefaultErrorMsg)
+	}
+
+	return http.StatusOK, data, nil
+
+}

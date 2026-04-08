@@ -55,3 +55,20 @@ func (h *StudentHandler) CreateStudent(c *gin.Context) {
 		"messege":    "Student Created successfully",
 	})
 }
+
+func (h *StudentHandler) ListStudent(c *gin.Context) {
+	status, data, err := h.StudentService.ListStudent()
+	if err != nil {
+		c.JSON(status, gin.H{
+			"is_success": false,
+			"messege":    err.Error(),
+		})
+		return
+	}
+	c.JSON(status, gin.H{
+		"is_success": true,
+		"messege":    "Students Listed successfully",
+		"data":       data,
+	})
+
+}
