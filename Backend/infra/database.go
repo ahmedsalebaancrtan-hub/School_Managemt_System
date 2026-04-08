@@ -23,6 +23,7 @@ func ConnectDb() {
 	db.AutoMigrate(models.User{},
 		models.Class{},
 		models.Family{},
+		models.Student{},
 	)
 	DB = db
 }
