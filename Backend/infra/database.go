@@ -24,6 +24,7 @@ func ConnectDb() {
 		models.Class{},
 		models.Family{},
 		models.Student{},
+		models.StudentClass{},
 	)
 	DB = db
 }
