@@ -16,9 +16,9 @@ type StudentClassHandler struct {
 }
 
 func RegisterStudentClass() *StudentClassHandler {
-
+	StudentRepo := repository.NewSTudentRepo(infra.DB)
 	StudentClassRepo := repository.NewStudentClassRepo(infra.DB)
-	StudentClassService := service.NewSTudentClassServ(StudentClassRepo)
+	StudentClassService := service.NewSTudentClassServ(StudentClassRepo, StudentRepo)
 
 	return &StudentClassHandler{
 		STudentClassService: StudentClassService,
@@ -81,5 +81,31 @@ func (h *StudentClassHandler) FindClassStudentByClassID(c *gin.Context) {
 		"messege":    "class fetched successfully",
 		"is_success": true,
 		"data":       classStudent,
+	})
+}
+func (h *StudentClassHandler) DeactivateStudentclass(c *gin.Context) {
+	IdStr := c.Param("student_id")
+	id, err := strconv.Atoi(IdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"messege":    "failed to get student_id param",
+			"is_success": false,
+			"error":      err.Error(),
+		})
+		return
+	}
+	status, err := h.STudentClassService.DeactiveStudentClass(uint(id))
+
+	if err != nil {
+		c.JSON(status, gin.H{
+			"is_success": false,
+			"messege":    err.Error(),
+		})
+		return
+	}
+
+	c.JSON(status, gin.H{
+		"messege":    "Deactived student class successfully",
+		"is_success": true,
 	})
 }

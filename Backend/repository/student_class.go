@@ -35,13 +35,12 @@ func (r *StudentClassRepo) GetActiveClass(StudentId uint) (models.StudentClass, 
 }
 
 func (r *StudentClassRepo) DeactiveStudentClass(StudentID uint) error {
-	return r.DB.Where("student_id = ? AND  is_active = ?", StudentID, true).Update("is_active = ?", false).Error
+	return r.DB.Model(models.StudentClass{}).Where("student_id = ? AND  is_active = ?", StudentID, true).Update("is_active", false).Error
 }
 
 func (r *StudentClassRepo) GetClassStudent(classId uint) ([]models.StudentClass, error) {
-	var classStudents []models.StudentClass // renamed for clarity (plural)
+	var classStudents []models.StudentClass
 
-	// Use Find instead of First to get a list
 	err := r.DB.Preload("Class").
 		Preload("Student").
 		Where("class_id = ?", classId).

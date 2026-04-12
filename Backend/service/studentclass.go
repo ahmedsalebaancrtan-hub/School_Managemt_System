@@ -13,11 +13,13 @@ import (
 
 type StudentClassService struct {
 	StudentClassRepo *repository.StudentClassRepo
+	StudentRepo      *repository.StudentRepo
 }
 
-func NewSTudentClassServ(StudentClassRepo *repository.StudentClassRepo) *StudentClassService {
+func NewSTudentClassServ(StudentClassRepo *repository.StudentClassRepo, StudentRepo *repository.StudentRepo) *StudentClassService {
 	return &StudentClassService{
 		StudentClassRepo: StudentClassRepo,
+		StudentRepo:      StudentRepo,
 	}
 }
 
@@ -54,4 +56,22 @@ func (svc *StudentClassService) ListSTudentClass(ClassID uint) (int, []models.St
 	}
 
 	return http.StatusOK, ClassStudent, nil
+}
+
+func (svc *StudentClassService) DeactiveStudentClass(StudentID uint) (int, error) {
+	slog.Info("Check if student exist inthe class")
+
+	_, err := svc.StudentRepo.GetStudentByID(StudentID)
+
+	if err != nil {
+		slog.Error("failed to deactivate student", "error", err.Error())
+		return http.StatusNotFound, errors.New(constant.NotFound)
+	}
+	slog.Info("Deactivate classes")
+
+	err = svc.StudentClassRepo.DeactiveStudentClass(StudentID)
+	if err != nil {
+		return http.StatusInternalServerError, errors.New(constant.DefaultErrorMsg)
+	}
+	return http.StatusOK, nil
 }
