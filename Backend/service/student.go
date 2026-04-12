@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -25,6 +26,7 @@ func NewStudenService(StudentRepo *repository.StudentRepo, familyRepo *repositor
 }
 
 func (svc *StudentService) CreateStudent(data dto.CreateStudentDto) (int, error) {
+	fmt.Println("Incoming FamilyID:", data.FamilyID)
 
 	ExistingFamily, err := svc.familyRepo.GetfamilyByID(data.FamilyID)
 

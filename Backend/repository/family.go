@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"errors"
-
 	"github.com/ahmed/capstone_project/models"
 	"gorm.io/gorm"
 )
@@ -24,9 +22,9 @@ func (r *FamilyRepo) CreateFamily(data models.Family) error {
 func (r *FamilyRepo) GetfamilyByID(FamilyID uint) (models.Family, error) {
 	var family models.Family
 
-	if err := r.DB.Preload("Family").Where("id = ?", FamilyID).First(&family).Error; err != nil {
-		return models.Family{}, errors.New("famil not found")
-
+	err := r.DB.First(&family, FamilyID).Error
+	if err != nil {
+		return models.Family{}, err
 	}
 
 	return family, nil

@@ -29,3 +29,16 @@ func (r *StudentRepo) ListStudent() ([]models.Student, error) {
 
 	return student, nil
 }
+
+func (r *StudentRepo) GetStudentByID(StudentID uint) (models.Student, error) {
+	var student models.Student
+
+	err := r.DB.Where("id = ?", StudentID).First(&student).Error
+
+	if err != nil {
+		return models.Student{}, err
+	}
+
+	return models.Student{}, nil
+
+}
