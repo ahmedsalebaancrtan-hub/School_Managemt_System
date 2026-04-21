@@ -14,6 +14,8 @@ func RegIsterRouter(r *gin.Engine) {
 	FamilyHandler := handler.RegisterFamilyHandler()
 	StudentHandler := handler.RegisterStudentHandler()
 	StudentClassHandler := handler.RegisterStudentClass()
+	MonthlyFeeHandler := handler.NewMonthlyFeeHandler()
+
 	UserGroup := ApiGroup.Group("/users")
 
 	{
@@ -47,6 +49,12 @@ func RegIsterRouter(r *gin.Engine) {
 		StudenClassGroup.POST("/Add", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS"), StudentClassHandler.AddSTudentClass)
 		StudenClassGroup.GET("/list/:class_id", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS", "CASHIER"), StudentClassHandler.FindClassStudentByClassID)
 		StudenClassGroup.PUT("/Deactivate/:student_id", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS"), StudentClassHandler.DeactivateStudentclass)
+	}
+	MonthlyFeeGroup := ApiGroup.Group("/month_fee")
+	{
+		MonthlyFeeGroup.POST("/Generate", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "CASHIER"), MonthlyFeeHandler.GenerateFee)
+		MonthlyFeeGroup.GET("/list", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "CASHIER"), MonthlyFeeHandler.ListMonthlyFee)
+
 	}
 
 }
