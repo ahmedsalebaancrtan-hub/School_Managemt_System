@@ -12,3 +12,5 @@ var (
 
 	NotFound = "not found"
 )
+
+var STUDENT_FEE = 30
