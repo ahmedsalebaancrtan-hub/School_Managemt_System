@@ -19,6 +19,10 @@ func (r *MonthlyFeeRepo) Create(fee *models.MonthlyFee) error {
 	return r.DB.Create(fee).Error
 }
 
+func (r *MonthlyFeeRepo) Update(fee *models.MonthlyFee) error {
+	return r.DB.Save(fee).Error
+}
+
 func (r *MonthlyFeeRepo) List() ([]models.MonthlyFee, error) {
 	var MonthlyFee []models.MonthlyFee
 

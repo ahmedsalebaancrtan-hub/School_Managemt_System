@@ -7,7 +7,7 @@ import (
 )
 
 func RegIsterRouter(r *gin.Engine) {
-	ApiGroup := r.Group("api/")
+	ApiGroup := r.Group("/api")
 
 	UserHandler := handler.RegisterUserHandler()
 	ClassHandler := handler.RegisterClassHandler()
@@ -15,7 +15,11 @@ func RegIsterRouter(r *gin.Engine) {
 	StudentHandler := handler.RegisterStudentHandler()
 	StudentClassHandler := handler.RegisterStudentClass()
 	MonthlyFeeHandler := handler.NewMonthlyFeeHandler()
-
+	teacherHandler := handler.RegisterTeacherHandler()
+	subjectHandler := handler.RegisterSubjectHandler()
+	attendanceHandler := handler.RegisterAttendanceHandler()
+	examHandler := handler.RegisterExamHandler()
+	resultHandler := handler.RegisterResultHandler()
 	UserGroup := ApiGroup.Group("/users")
 
 	{
@@ -54,7 +58,40 @@ func RegIsterRouter(r *gin.Engine) {
 	{
 		MonthlyFeeGroup.POST("/Generate", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "CASHIER"), MonthlyFeeHandler.GenerateFee)
 		MonthlyFeeGroup.GET("/list", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "CASHIER"), MonthlyFeeHandler.ListMonthlyFee)
-
+		MonthlyFeeGroup.POST("/pay", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "CASHIER"), MonthlyFeeHandler.AcceptPayment)
 	}
+	TeacherGroup := ApiGroup.Group("/teacher")
+	{
+		TeacherGroup.POST("/create", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), teacherHandler.CreateTeacher)
+		TeacherGroup.PUT("/update/:id", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), teacherHandler.UpdateTeacher)
+		TeacherGroup.GET("/all", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), teacherHandler.GetAllTeachers)
+		TeacherGroup.GET("/phone/:phone", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), teacherHandler.GetTeacherByPhone)
+	}
+	SubjectGroup := ApiGroup.Group("/subject")
+	{
+		SubjectGroup.POST("/create", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), subjectHandler.CreateSubject)
+		SubjectGroup.GET("/all", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), subjectHandler.GetAllSubjects)
+		SubjectGroup.PUT("/update/:id", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), subjectHandler.UpdateSubject)
+	}
+	AttendanceGroup := ApiGroup.Group("/attendance")
+	{
+		// Admin and Student Affairs can submit and review daily tracking logs
+		AttendanceGroup.POST("/submit", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), attendanceHandler.SubmitAttendance)
+		AttendanceGroup.GET("/sheet/:classId", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), attendanceHandler.GetDailySheet)
+	}
+	ExamGroup := ApiGroup.Group("/exam")
+	{
+		// Restricted entirely to administrators and academic managers
+		ExamGroup.POST("/create", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), examHandler.CreateExam)
+		ExamGroup.GET("/all", middleware.Authenticated(), examHandler.GetAllExams)
+		ExamGroup.PATCH("/status/:id", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), examHandler.UpdateStatus)
+	}
+	ResultGroup := ApiGroup.Group("/result")
+	{
+		// Only Admin & Student Affairs can write or update exam grades
+		ResultGroup.POST("/bulk-submit", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), resultHandler.SubmitResults)
 
+		// Students and Parents can retrieve performance cards directly
+		ResultGroup.GET("/report-card/:studentId", middleware.Authenticated(), resultHandler.GetReportCard)
+	}
 }
