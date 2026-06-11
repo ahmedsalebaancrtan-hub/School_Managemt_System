@@ -11,10 +11,10 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-// Claims struct (optional haddii aad rabto strongly typed)
 type Claims struct {
-	Sub  string `json:"sub"`
-	Role string `json:"role"`
+	Sub    string `json:"sub"`
+	Role   string `json:"role"`
+	UserID uint
 	jwt.StandardClaims
 }
 
@@ -44,7 +44,6 @@ func Authenticated() gin.HandlerFunc {
 
 		// 3. Extract token
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-
 		secret := []byte(infra.Configuration.Access_jwt_Token)
 
 		// 4. Parse token
@@ -74,19 +73,54 @@ func Authenticated() gin.HandlerFunc {
 		email := claims["sub"]
 		role := claims["role"]
 
-		// 7. Set context
+		// 🌟 BULLETPROOF USER ID EXTRACTION
+		var rawID interface{}
+		var idExists bool
+
+		// Check for both camelCase "userID" (from helper) and snake_case "user_id"
+		if rawID, idExists = claims["userID"]; !idExists {
+			rawID, idExists = claims["user_id"]
+		}
+
+		if !idExists || rawID == nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message":    "invalid user id: claim missing from token",
+				"is_success": false,
+			})
+			return
+		}
+
+		// Dynamically handle type conversions safely depending on how JWT unmarshals it
+		var userID uint
+		switch v := rawID.(type) {
+		case float64:
+			userID = uint(v)
+		case int:
+			userID = uint(v)
+		case int64:
+			userID = uint(v)
+		case uint:
+			userID = v
+		default:
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message":    "invalid user id: unexpected data format type",
+				"is_success": false,
+			})
+			return
+		}
+
+		// 🌟 CRITICAL ALIGNMENT: Save to BOTH keys to avoid any handler mismatch bugs!
+		c.Set("user_id", userID) // snake_case
+		c.Set("userId", userID)  // camelCase
+
 		c.Set("email", email)
 		c.Set("role", role)
 
-		// 8. Log user
-		slog.Info("Logged in User", "email", email)
+		slog.Info("Logged in User verified successfully", "email", email, "userID", userID)
 
-		// 9. Continue
 		c.Next()
 	}
 }
-
-// Middleware-ka Refresh Token
 func RefreshAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -117,7 +151,6 @@ func RefreshAuthenticated() gin.HandlerFunc {
 		// 4. Parse token
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
 
-			// Signing method check (GOOD 👍)
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}

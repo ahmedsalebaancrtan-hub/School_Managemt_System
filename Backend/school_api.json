@@ -1,0 +1,352 @@
+{
+	"info": {
+		"_postman_id": "capstone-school-mgmt-system",
+		"name": "Somali School Management System - Core Academic & Finance",
+		"description": "Comprehensive suite to test Teachers, Subjects, Timetables, Bulk Attendance, Exams, Results, and Monthly Fee Payments.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Teacher Domain",
+			"item": [
+				{
+					"name": "Create Teacher",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullname\": \"Maxamed Cali Jaamac\",\n    \"phone\": \"252615123456\",\n    \"email\": \"maxamed.cali@school.edu.so\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/teacher/create",
+							"host": ["{{base_url}}"],
+							"path": ["teacher", "create"]
+						}
+					}
+				},
+				{
+					"name": "Get All Teachers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/teacher/all",
+							"host": ["{{base_url}}"],
+							"path": ["teacher", "all"]
+						}
+					}
+				},
+				{
+					"name": "Get Teacher By Phone",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/teacher/phone/252615123456",
+							"host": ["{{base_url}}"],
+							"path": ["teacher", "phone", "252615123456"]
+						}
+					}
+				},
+				{
+					"name": "Update Teacher Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullname\": \"Maxamed Cali Jaamac (Updated)\",\n    \"phone\": \"252615123456\",\n    \"email\": \"maxamed.newemail@school.edu.so\",\n    \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/teacher/update/1",
+							"host": ["{{base_url}}"],
+							"path": ["teacher", "update", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Subject Domain",
+			"item": [
+				{
+					"name": "Create Subject",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Tarbiya Islamiyah\",\n    \"code\": \"TRB-G1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/subject/create",
+							"host": ["{{base_url}}"],
+							"path": ["subject", "create"]
+						}
+					}
+				},
+				{
+					"name": "Get All Subjects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/subject/all",
+							"host": ["{{base_url}}"],
+							"path": ["subject", "all"]
+						}
+					}
+				},
+				{
+					"name": "Update Subject Details",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Tarbiya Islamiyah Advanced\",\n    \"code\": \"TRB-G1-ADV\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/subject/update/1",
+							"host": ["{{base_url}}"],
+							"path": ["subject", "update", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Timetable Domain",
+			"item": [
+				{
+					"name": "Assign Timetable Slot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"class_id\": 1,\n    \"subject_id\": 1,\n    \"teacher_id\": 1,\n    \"day_of_week\": \"Saturday\",\n    \"start_time\": \"07:30\",\n    \"end_time\": \"08:15\",\n    \"shift\": \"Morning\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/timetable/slot",
+							"host": ["{{base_url}}"],
+							"path": ["timetable", "slot"]
+						}
+					}
+				},
+				{
+					"name": "Get Class Timetable Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/timetable/class/1",
+							"host": ["{{base_url}}"],
+							"path": ["timetable", "class", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Attendance Domain",
+			"item": [
+				{
+					"name": "Submit Bulk Attendance Roll Call",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"class_id\": 1,\n    \"date\": \"2026-06-11\",\n    \"records\": [\n        {\n            \"student_id\": 1,\n            \"status\": \"Present\",\n            \"remarks\": \"Arrived on time\"\n        },\n        {\n            \"student_id\": 2,\n            \"status\": \"Absent\",\n            \"remarks\": \"No parental notice given\"\n        },\n        {\n            \"student_id\": 3,\n            \"status\": \"Sick\",\n            \"remarks\": \"Parent confirmed fever\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/attendance/submit",
+							"host": ["{{base_url}}"],
+							"path": ["attendance", "submit"]
+						}
+					}
+				},
+				{
+					"name": "Get Class Daily Attendance Sheet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/sheet/1?date=2026-06-11",
+							"host": ["{{base_url}}"],
+							"path": ["attendance", "sheet", "1"],
+							"query": [
+								{ "key": "date", "value": "2026-06-11" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Exam Domain",
+			"item": [
+				{
+					"name": "Create Exam Cycle Period",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Imtixaanka Nus-Sanadka (Midterm)\",\n    \"academic_year\": \"2025/2026\",\n    \"term\": \"Term 1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/exam/create",
+							"host": ["{{base_url}}"],
+							"path": ["exam", "create"]
+						}
+					}
+				},
+				{
+					"name": "Get All Exam Periods",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/exam/all",
+							"host": ["{{base_url}}"],
+							"path": ["exam", "all"]
+						}
+					}
+				},
+				{
+					"name": "Toggle Exam Active Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"is_active\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/exam/status/1",
+							"host": ["{{base_url}}"],
+							"path": ["exam", "status", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Result Domain",
+			"item": [
+				{
+					"name": "Submit Bulk Student Exam Grades",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"exam_id\": 1,\n    \"subject_id\": 1,\n    \"max_marks\": 100,\n    \"grades\": [\n        {\n            \"student_id\": 1,\n            \"marks_obtained\": 87.5,\n            \"remarks\": \"Gudbay (Excellent performance)\"\n        },\n        {\n            \"student_id\": 2,\n            \"marks_obtained\": 42.0,\n            \"remarks\": \"Haray (Needs tutoring support)\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/result/bulk-submit",
+							"host": ["{{base_url}}"],
+							"path": ["result", "bulk-submit"]
+						}
+					}
+				},
+				{
+					"name": "Get Student Report Card Results",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/result/report-card/1?examId=1",
+							"host": ["{{base_url}}"],
+							"path": ["result", "report-card", "1"],
+							"query": [
+								{ "key": "examId", "value": "1" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Monthly Fee Ledger Engine",
+			"item": [
+				{
+					"name": "Generate Monthly Fees Accounts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"month\": \"June 2026\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/month_fee/Generate",
+							"host": ["{{base_url}}"],
+							"path": ["month_fee", "Generate"]
+						}
+					}
+				},
+				{
+					"name": "List All Monthly Fee Billing Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/month_fee/list",
+							"host": ["{{base_url}}"],
+							"path": ["month_fee", "list"]
+						}
+					}
+				},
+				{
+					"name": "Accept Partial or Full Tuition Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"month\": \"June 2026\",\n    \"student_id\": 1,\n    \"amount_paid\": 35.00,\n    \"discount_amount\": 5.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/month_fee/pay",
+							"host": ["{{base_url}}"],
+							"path": ["month_fee", "pay"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

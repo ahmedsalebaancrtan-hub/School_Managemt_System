@@ -23,7 +23,7 @@ func main() {
 
 	routes.RegIsterRouter(r)
 
-	slog.Info("application is running on port :500")
+	slog.Info("application is running on port :8000")
 
 	r.Run(fmt.Sprintf(":%s", Config.Port))
 }
