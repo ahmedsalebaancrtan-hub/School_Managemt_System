@@ -20,22 +20,35 @@ func RegisterAttendanceHandler() *AttendanceHandler {
 	svc := service.NewAttendanceService(*repo)
 	return &AttendanceHandler{Service: svc}
 }
-
 func (h *AttendanceHandler) SubmitAttendance(c *gin.Context) {
-	// Extract staff ID from auth context middleware
-	userID, exists := c.Get("userId")
+	// 1. Fetch the successfully parsed userID from the middleware context
+	ctxUserID, exists := c.Get("user_id") // ✅ Matches the snake_case key in your middleware
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"is_success": false, "message": "Unauthorized context action"})
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"is_success": false,
+			"message":    "Unauthorized: Missing user authentication context",
+		})
 		return
 	}
-	staffID := userID.(uint)
 
+	// 2. Type assert safely to uint
+	staffID, ok := ctxUserID.(uint)
+	if !ok || staffID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"is_success": false,
+			"message":    "Unauthorized: Invalid user identity structure",
+		})
+		return
+	}
+
+	// 3. Process incoming body data payload
 	var body dto.BulkAttendanceDto
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"is_success": false, "error": err.Error()})
 		return
 	}
 
+	// 4. Pass the verified staffID directly to your service
 	status, err := h.Service.ProcessBulkAttendance(staffID, body)
 	if err != nil {
 		c.JSON(status, gin.H{"is_success": false, "message": err.Error()})

@@ -73,6 +73,16 @@ func RegIsterRouter(r *gin.Engine) {
 		SubjectGroup.GET("/all", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), subjectHandler.GetAllSubjects)
 		SubjectGroup.PUT("/update/:id", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), subjectHandler.UpdateSubject)
 	}
+	timetableHandler := handler.RegisterTimetableHandler()
+
+	TimetableGroup := ApiGroup.Group("/timetable")
+	{
+		// Only Admin or Student Affairs can write schedules
+		TimetableGroup.POST("/slot", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "StudentAffairs"), timetableHandler.CreateSlot)
+
+		// Students, Cashiers, and Admins can all view class schedules
+		TimetableGroup.GET("/class/:classId", middleware.Authenticated(), timetableHandler.GetClassSchedule)
+	}
 	AttendanceGroup := ApiGroup.Group("/attendance")
 	{
 		// Admin and Student Affairs can submit and review daily tracking logs
