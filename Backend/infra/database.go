@@ -26,6 +26,12 @@ func ConnectDb() {
 		models.Student{},
 		models.StudentClass{},
 		models.MonthlyFee{},
+		models.Teacher{},
+		models.Subject{},
+		models.Timetable{},
+		models.Attendance{},
+		models.Exam{},
+		models.Result{},
 	)
 	DB = db
 }
