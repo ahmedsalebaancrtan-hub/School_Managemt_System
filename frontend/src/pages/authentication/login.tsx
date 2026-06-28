@@ -1,66 +1,107 @@
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useState } from "react"
-import { useUserStore } from "@/store/user.store"
-import type { IuserLoginRequest } from "@/types/user"
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
+import { AlertDestructive } from "@/components/utilits/errorComponent";
+import { useUserStore } from "@/store/user.store";
+import type { IuserLoginRequest } from "@/types/user";
 
 export const Login = () => {
-  const [email, setEmail] = useState("")
-  const  [Password, setPassword] = useState("")
+  const navigate = useNavigate();
 
-  const {isLoading, user, loginUser} = useUserStore()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const HandleLogin = () =>{
-    const data : IuserLoginRequest= {
-      emailaddress : email,
-      password : Password
+  const {
+    isLoading,
+    loginUser,
+    error,
+    isSuccess,
+    isError,
+  } = useUserStore();
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data: IuserLoginRequest = {
+      emailaddress: email,
+      password: password,
+    };
+
+    await loginUser(data);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Logged in successfully");
+      navigate("/dashboard");
     }
-loginUser(data)
 
-  }
+    if (isError) {
+      toast.error(error);
+    }
+  }, [isSuccess, isError, error, navigate]);
+
   return (
-    <div className='container flex items-center h-screen justify-center mx-auto'>
-    <div className="content">
-      <div className="header">
-        <h1 className="text-xl font-bold">sing In to your acount </h1>
-        <p className="text-gray-500">
-          please enter your email and password to access your account 
-        </p>
-      </div>
+    <div className="container mx-auto flex h-screen items-center justify-center">
+      <div className="w-full max-w-md">
 
-      <div className="form mt-6">
-        <form action="" className="grid gap-3">
-          <div className="input-container grid gap-3">
-      <Label>
-        EmailAddress
-      </Label>
-      <Input 
-      value={email}
-      onChange={e => setEmail(e.target.value)}
-      type="text" placeholder="EmailAddress" />
-            
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">
+            Sign In to your account
+          </h1>
 
+          <p className="text-gray-500">
+            Please enter your email and password.
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-4">
+            <AlertDestructive
+              errorTitle="Login Failed"
+              errorDescription={error}
+            />
           </div>
-          <div className="input-container grid gap-3">
-      <Label>
-   Password
-      </Label>
-      <Input
-      value={Password}
-      onChange={e => setPassword(e.target.value)}
-      
-      type="password" placeholder="password" />
-            
+        )}
 
+        <form
+          onSubmit={handleLogin}
+          className="grid gap-4"
+        >
+          <div className="grid gap-2">
+            <Label>Email Address</Label>
+
+            <Input
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
-          <Button onClick={HandleLogin}   disabled={isLoading} >
-            {isLoading ? "...Loading" : "SingIn"}
+
+          <div className="grid gap-2">
+            <Label>Password</Label>
+
+            <Input
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : "Sign In"}
           </Button>
         </form>
       </div>
     </div>
-    </div>
-  )
-}
+  );
+};
