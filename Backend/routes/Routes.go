@@ -31,7 +31,7 @@ func RegIsterRouter(r *gin.Engine) {
 
 	ClassGroup := ApiGroup.Group("/class")
 	{
-		ClassGroup.POST("/create", middleware.Authenticated(), ClassHandler.CreateClass)
+		ClassGroup.POST("/create", ClassHandler.CreateClass)
 		ClassGroup.PUT("/update/:classid", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS"), ClassHandler.UpdateClass)
 		ClassGroup.GET("/list", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS", "CASHIER"), ClassHandler.FindAll)
 		ClassGroup.GET("/details/:classid", middleware.Authenticated(), middleware.RequiredRole("ADMIN", "STUDENT_AFFAIRS", "CASHIER"), ClassHandler.FindByid)
