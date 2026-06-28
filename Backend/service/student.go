@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -26,19 +25,34 @@ func NewStudenService(StudentRepo *repository.StudentRepo, familyRepo *repositor
 }
 
 func (svc *StudentService) CreateStudent(data dto.CreateStudentDto) (int, error) {
-	fmt.Println("Incoming FamilyID:", data.FamilyID)
-
-	ExistingFamily, err := svc.familyRepo.GetfamilyByID(data.FamilyID)
+	// Look up family by phone
+	var existingFamily models.Family
+	err := svc.familyRepo.DB.Where("parent_one_phone = ?", data.ParentOnePhone).First(&existingFamily).Error
 
 	if err != nil {
-		return http.StatusNotFound, err
+		// Family not found, create new one
+		existingFamily = models.Family{
+			FamilyName:     data.FamilyName,
+			ParentOneName:  data.ParentOneName,
+			ParentOnePhone: data.ParentOnePhone,
+			// Since ParentTwoName/ParentTwoPhone are in the Family struct but not required here,
+			// we can initialize them as empty or skip.
+		}
+		if err := svc.familyRepo.CreateFamily(existingFamily); err != nil {
+			slog.Info("failed to create family dynamically", "error", err)
+			return http.StatusInternalServerError, errors.New("failed to create family for new student")
+		}
+		// Fetch again to get the inserted ID if Create didn't populate it (Gorm usually populates it though)
+		svc.familyRepo.DB.Where("parent_one_phone = ?", data.ParentOnePhone).First(&existingFamily)
 	}
 
 	var NewStudent = models.Student{
-		FirstName:  data.FirstName,
-		MiddleName: data.MiddleName,
-		LastName:   data.LastName,
-		FamilyID:   ExistingFamily.ID,
+		FirstName:   data.FirstName,
+		MiddleName:  data.MiddleName,
+		LastName:    data.LastName,
+		StudentCode: data.StudentCode,
+		Gender:      data.Gender,
+		FamilyID:    existingFamily.ID,
 	}
 	err = svc.StudentRepo.CreateStudent(NewStudent)
 
@@ -48,7 +62,6 @@ func (svc *StudentService) CreateStudent(data dto.CreateStudentDto) (int, error)
 	}
 
 	return http.StatusCreated, nil
-
 }
 
 func (svc *StudentService) ListStudent() (int, []models.Student, error) {

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/ahmed/capstone_project/infra"
+	"github.com/ahmed/capstone_project/middleware"
 	"github.com/ahmed/capstone_project/routes"
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +21,7 @@ func main() {
 	slog.Info("connect database sucessfully ")
 
 	r := gin.Default()
+	r.Use(middleware.CORSMiddleware())
 
 	routes.RegIsterRouter(r)
 
