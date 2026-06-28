@@ -1,67 +1,94 @@
 import { api, DEFUALT_ERROR_MESSEGE } from "@/lib/api";
-import type { IuserLoginRequest, IuserLoginResponse, User } from "@/types/user";
+import type {
+  IuserLoginRequest,
+  IuserLoginResponse,
+  User,
+} from "@/types/user";
 import { AxiosError } from "axios";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
+interface IUserStore {
+  isLoading: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+  error: string;
 
-interface IUserStore{
-    isLoading : boolean,
-    error : string,
-    user: User,
-    accessToken : string,
-    refreshToken: string,
-    loginUser : (data : IuserLoginRequest) => void
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+
+  loginUser: (data: IuserLoginRequest) => Promise<void>;
 }
 
+export const useUserStore = create<IUserStore>()(
+  persist(
+    (set) => ({
+      isLoading: false,
+      isSuccess: false,
+      isError: false,
+      error: "",
 
-export const useUserStore = create<IUserStore>((set)=> (
+      user: {} as User,
+
+      accessToken: "",
+      refreshToken: "",
+
+      loginUser: async (reqData) => {
+        set({
+          isLoading: true,
+          isSuccess: false,
+          isError: false,
+          error: "",
+        });
+
+        try {
+          const response = await api.post("/users/Login", reqData);
+
+          const data: IuserLoginResponse = response.data;
+
+          if (!data.is_sucess) {
+            set({
+              isLoading: false,
+              isSuccess: false,
+              isError: true,
+              error: data.messege,
+            });
+
+            return;
+          }
+
+          set({
+            isLoading: false,
+            isSuccess: true,
+            isError: false,
+            error: "",
+
+            accessToken: data.data.Access_token,
+            refreshToken: data.data.Refresh_token,
+            user: data.data.User,
+          });
+        } catch (error) {
+          let message = DEFUALT_ERROR_MESSEGE;
+
+          if (error instanceof AxiosError) {
+            message =
+              error.response?.data?.messege ||
+              error.response?.data?.message ||
+              "Email or password is incorrect";
+          }
+
+          set({
+            isLoading: false,
+            isSuccess: false,
+            isError: true,
+            error: message,
+          });
+        }
+      },
+    }),
     {
-        isLoading : false,
-        error : "",
-        user : {} as User,
-        accessToken :  "",
-        refreshToken : "",
-        async  loginUser(reqdata){
-      try {
-        
-              // 1. set is Loading true 
-            set({
-                isLoading : true,
-                error : ""
-            })
-
-            //2. call the Backend 
-            const response = await api.post("/users/Login", reqdata)
-            const data : IuserLoginResponse = response.data
-
-            if(!data.is_sucess){
-                set({
-                    isLoading: false,
-                    error : data.messege
-                })
-                return 
-
-            }
-            // Store the State 
-
-            set({
-                isLoading : false,
-                accessToken : data.data.Access_token,
-                refreshToken : data.data.Refresh_token,
-                user : data.data.User
-            })
-      } catch (error) {
-        if(error instanceof AxiosError) {
-            set({
-                isLoading : false,
-                error : error.message || DEFUALT_ERROR_MESSEGE,
-            })
-        }
-        
-      }
-
-
-        }
-        
+      name: "userStore",
     }
-))
+  )
+);
