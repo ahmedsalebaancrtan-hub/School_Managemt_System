@@ -85,14 +85,23 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 }
 
 func (h *UserHandler) WhoAmI(c *gin.Context) {
-	isLogged := h.Userservice.WhoAmI()
+
+	userID := c.GetUint("user_id")
+
+	user, statusCode, err := h.Userservice.WhoAmI(userID)
+	if err != nil {
+		c.JSON(statusCode, gin.H{
+			"is_success": false,
+			"message":    err.Error(),
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"is_sucess": true,
-		"messege":   "User Login sucessfully!",
-		"data":      isLogged,
+		"is_success": true,
+		"message":    "User fetched successfully",
+		"data":       user,
 	})
-
 }
 
 func (h *UserHandler) RefreshToken(c *gin.Context) {

@@ -124,9 +124,20 @@ func (svc *Userservice) LoginUser(data dto.LoginUserRequest) (response *dto.Logi
 	return
 
 }
+func (svc *Userservice) WhoAmI(userID uint) (*dto.UserProfileResponse, int, error) {
 
-func (svc *Userservice) WhoAmI() bool {
-	return true
+	user, err := svc.repo.GetUserByID(userID)
+	if err != nil {
+		return nil, http.StatusUnauthorized, errors.New("user not found")
+	}
+
+	response := &dto.UserProfileResponse{
+		FullName:     user.FullName,
+		EmailAddress: user.EmailAddress,
+		Role:         string(user.Role),
+	}
+
+	return response, http.StatusOK, nil
 }
 
 func (svc *Userservice) RefreshToken(email string) (*dto.LoginUserResponse, int, error) {

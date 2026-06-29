@@ -32,6 +32,16 @@ func (repo *UserRepo) GetUserByEmail(email string) (models.User, error) {
 	}
 	return user, nil
 }
+func (repo *UserRepo) GetUserByID(id uint) (*models.User, error) {
+	var user models.User
+
+	err := repo.DB.First(&user, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
 
 func (repo *UserRepo) UpdatesLastLogin(UserID uint) error {
 
