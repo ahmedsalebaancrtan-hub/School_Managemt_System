@@ -14,6 +14,12 @@ type LoginUserRequest struct {
 	Password     string `json:"password" binding:"required,min=8,max=128"`
 }
 
+type UserProfileResponse struct {
+	FullName     string `json:"fullname"`
+	EmailAddress string `json:"emailaddress"`
+	Role         string `json:"role"`
+}
+
 type LoginUserResponse struct {
 	AccessToken  string      `json:"Access_token"`
 	RefreshToken string      `json:"Refresh_token"`
