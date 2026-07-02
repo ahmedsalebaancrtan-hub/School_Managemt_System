@@ -1,7 +1,12 @@
 "use client"
 
-import { useEffect } from "react"
-import { IconDotsVertical, IconLogout } from "@tabler/icons-react"
+import {
+  IconCreditCard,
+  IconDotsVertical,
+  IconLogout,
+  IconNotification,
+  IconUserCircle,
+} from "@tabler/icons-react"
 
 import {
   Avatar,
@@ -12,6 +17,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -28,29 +34,22 @@ import {
 import { useUserStore } from "@/store/user.store"
 
 export function NavUser() {
-  const { user, WhoAmI, isLoading } = useUserStore()
+  const { user, isLoading } = useUserStore()
   const { isMobile } = useSidebar()
 
-  // only call once when user not loaded
-  useEffect(() => {
-    if (!user?.id) {
-      WhoAmI()
-    }
-  }, [])
+  // Generate initials from fullname
+  const getInitials = (fullname?: string) => {
+    if (!fullname) return "??"
 
-  // initials fallback
-  const getInitials = (name?: string) => {
-    if (!name) return "??"
+    const names = fullname.trim().split(" ")
 
-    const parts = name.trim().split(" ")
-
-    if (parts.length === 1) {
-      return parts[0][0].toUpperCase()
+    if (names.length === 1) {
+      return names[0][0].toUpperCase()
     }
 
     return (
-      parts[0][0].toUpperCase() +
-      parts[1][0].toUpperCase()
+      names[0][0].toUpperCase() +
+      names[1][0].toUpperCase()
     )
   }
 
@@ -71,22 +70,25 @@ export function NavUser() {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg">
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage alt={user?.fullname ?? "User"} />
-
-                <AvatarFallback>
+                {/* Add profile image here later if your backend provides one */}
+                <AvatarImage src="" alt={user?.fullname ?? "User"} />
+                <AvatarFallback className="rounded-lg">
                   {getInitials(user?.fullname)}
                 </AvatarFallback>
               </Avatar>
 
-              <div className="flex flex-col text-left">
-                <span className="font-medium">
-                  {user?.fullname ?? "Guest"}
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">
+                  {user?.fullname ?? "Guest User"}
                 </span>
 
-                <span className="text-xs text-muted-foreground">
-                  {user?.emailaddress ?? "No email"}
+                <span className="truncate text-xs text-muted-foreground">
+                  {user?.emailaddress ?? "No Email"}
                 </span>
               </div>
 
@@ -95,17 +97,59 @@ export function NavUser() {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
+            sideOffset={4}
           >
-            <DropdownMenuLabel>
-              {user?.role ?? "USER"}
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src="" alt={user?.fullname ?? "User"} />
+                  <AvatarFallback className="rounded-lg">
+                    {getInitials(user?.fullname)}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">
+                    {user?.fullname ?? "Guest User"}
+                  </span>
+
+                  <span className="truncate text-xs text-muted-foreground">
+                    {user?.emailaddress ?? "No Email"}
+                  </span>
+
+                  <span className="truncate text-xs text-blue-500 font-medium">
+                    {user?.role ?? "USER"}
+                  </span>
+                </div>
+              </div>
             </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="text-red-500">
-              <IconLogout className="mr-2" />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <IconUserCircle />
+                Account
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <IconCreditCard />
+                Billing
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <IconNotification />
+                Notifications
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem>
+              <IconLogout />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
