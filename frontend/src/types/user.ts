@@ -26,3 +26,14 @@ export interface  IuserLoginRequest {
     password:     string;
 }
 
+export interface IWhoami {
+    data:       Data;
+    is_success: boolean;
+    message:    string;
+}
+
+export interface Data {
+    fullname:     string;
+    emailaddress: string;
+    role:         string;
+}
