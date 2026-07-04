@@ -13,7 +13,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,49 +22,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-
 import { useUserStore } from "@/store/user.store"
+import { useEffect } from "react"
 
 export function NavUser() {
-  const { user, isLoading } = useUserStore()
+  const { user, WhoAmI, isLoading , logout} = useUserStore()
   const { isMobile } = useSidebar()
 
-  // Generate initials from fullname
-  const getInitials = (fullname?: string) => {
-    if (!fullname) return "??"
+  useEffect(() => {
+    WhoAmI()
+  }, [])
 
-    const names = fullname.trim().split(" ")
+  // Safely extract the first letter of the first and last name
+  const initials = user?.fullname
+    ? user.fullname
+        .split(" ")
+        .filter(Boolean) // Removes extra spaces if they exist
+        .map((name) => name[0]) // Takes the first letter of each word
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) // Limits to 2 characters max (First name + Last name initial)
+    : ""
 
-    if (names.length === 1) {
-      return names[0][0].toUpperCase()
-    }
-
-    return (
-      names[0][0].toUpperCase() +
-      names[1][0].toUpperCase()
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg">
-            Loading...
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    )
-  }
-
-  return (
+  return isLoading ? (
+    "Loading..."
+  ) : (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
@@ -74,28 +61,21 @@ export function NavUser() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                {/* Add profile image here later if your backend provides one */}
-                <AvatarImage src="" alt={user?.fullname ?? "User"} />
+              <Avatar className="h-8 w-8 rounded-lg grayscale">
+                <AvatarImage src={user?.fullname} alt={user?.fullname} />
                 <AvatarFallback className="rounded-lg">
-                  {getInitials(user?.fullname)}
+                  {initials}
                 </AvatarFallback>
               </Avatar>
-
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {user?.fullname ?? "Guest User"}
-                </span>
-
+                <span className="truncate font-medium">{user?.fullname}</span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {user?.emailaddress ?? "No Email"}
+                  {user?.emailaddress}
                 </span>
               </div>
-
               <IconDotsVertical className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
@@ -105,50 +85,36 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src="" alt={user?.fullname ?? "User"} />
+                  <AvatarImage src={user?.fullname} alt={user?.fullname} />
                   <AvatarFallback className="rounded-lg">
-                    {getInitials(user?.fullname)}
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
-
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">
-                    {user?.fullname ?? "Guest User"}
-                  </span>
-
+                  <span className="truncate font-medium">{user?.fullname}</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {user?.emailaddress ?? "No Email"}
-                  </span>
-
-                  <span className="truncate text-xs text-blue-500 font-medium">
-                    {user?.role ?? "USER"}
+                    {user?.emailaddress}
                   </span>
                 </div>
               </div>
             </DropdownMenuLabel>
-
             <DropdownMenuSeparator />
-
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
-
               <DropdownMenuItem>
                 <IconCreditCard />
                 Billing
               </DropdownMenuItem>
-
               <DropdownMenuItem>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
-
             <DropdownMenuSeparator />
-
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={()=> logout()}>
               <IconLogout />
               Log out
             </DropdownMenuItem>

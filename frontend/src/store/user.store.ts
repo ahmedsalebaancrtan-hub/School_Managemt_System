@@ -2,8 +2,9 @@ import { api, DEFUALT_ERROR_MESSEGE } from "@/lib/api";
 import type {
   IuserLoginRequest,
   IuserLoginResponse,
-  IWhoami,
+  IwhoAmIResponse,
   User,
+  UserProfile,
 } from "@/types/user";
 import { AxiosError } from "axios";
 import { create } from "zustand";
@@ -16,11 +17,14 @@ interface IUserStore {
   error: string;
 
   user: User;
+  profile: UserProfile | null;
+
   accessToken: string;
   refreshToken: string;
 
   loginUser: (data: IuserLoginRequest) => Promise<void>;
-  WhoAmI?: () => Promise<void>;
+  WhoAmI: () => Promise<void>;
+  logout: () => void; // 1. Add to interface
 }
 
 export const useUserStore = create<IUserStore>()(
@@ -30,12 +34,27 @@ export const useUserStore = create<IUserStore>()(
       isSuccess: false,
       isError: false,
       error: "",
+user: {} as User,
+profile: null,
 
-      user: {} as User,
+accessToken: "",
+refreshToken: "",
+logout:  () => {
+        set({
+          isLoading: false,
+          isSuccess: false,
+          isError: false,
+          error: "",
+          user: {} as User,
+          profile: null,
+          accessToken: "",
+          refreshToken: "",
+        });
+        localStorage.clear();
 
-      accessToken: "",
-      refreshToken: "",
-
+        // 3. Force route away to the login page
+        window.location.href = "/auth/login";
+      },
       loginUser: async (reqData) => {
         set({
           isLoading: true,
@@ -89,47 +108,45 @@ export const useUserStore = create<IUserStore>()(
         }
       },
       // to get the user data from the access token
-    async WhoAmI() {
-      
-try {
-   set({
-          isLoading: true,
-          isSuccess: false,
-          isError: false,
-          error: "",
-        })
+    WhoAmI: async () => {
+  try {
+    set({
+      isLoading: true,
+      isSuccess: false,
+      isError: false,
+      error: "",
+    });
 
-        const response = await  api.get("/users/whoami", );
-        const data : IWhoami  = response.data
+    const response = await api.get("/users/whoami");
 
-        set({
-           isLoading: false,
-          isSuccess: true,
-          isError: false,
-          user : data?.data?.User
+    const data: IwhoAmIResponse = response.data;
 
-        })
-  
-} catch (error) {
-  let message = DEFUALT_ERROR_MESSEGE;
+    set({
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+      error: "",
+      profile: data.data,
+    });
+    
+  } catch (error) {
+    let message = DEFUALT_ERROR_MESSEGE;
 
-          if (error instanceof AxiosError) {
-            message =
-              error.response?.data?.messege ||
-              error.response?.data?.message ||
-              "Email or password is incorrect";
-          }
+    if (error instanceof AxiosError) {
+      message =
+        error.response?.data?.messege ||
+        error.response?.data?.message ||
+        DEFUALT_ERROR_MESSEGE;
+    }
 
-          set({
-            isLoading: false,
-            isSuccess: false,
-            isError: true,
-            error: message,
-          });
-
-  
-}
-      }
+    set({
+      isLoading: false,
+      isSuccess: false,
+      isError: true,
+      error: message,
+    });
+  }
+},
     }),
     {
       name: "userStore",

@@ -135,6 +135,10 @@ func (svc *Userservice) WhoAmI(userID uint) (*dto.UserProfileResponse, int, erro
 		FullName:     user.FullName,
 		EmailAddress: user.EmailAddress,
 		Role:         string(user.Role),
+		LastLogin:    user.Last_Login,
+		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
+		DeletedAt:    user.DeletedAt,
 	}
 
 	return response, http.StatusOK, nil
