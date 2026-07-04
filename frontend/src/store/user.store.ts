@@ -1,5 +1,6 @@
 import { api, DEFUALT_ERROR_MESSEGE } from "@/lib/api";
 import type {
+  IrefreshTokenResponse,
   IuserLoginRequest,
   IuserLoginResponse,
   IwhoAmIResponse,
@@ -24,7 +25,8 @@ interface IUserStore {
 
   loginUser: (data: IuserLoginRequest) => Promise<void>;
   WhoAmI: () => Promise<void>;
-  logout: () => void; // 1. Add to interface
+  logout: () => void;
+  SetUserData: (data: IrefreshTokenResponse) => void;
 }
 
 export const useUserStore = create<IUserStore>()(
@@ -34,12 +36,14 @@ export const useUserStore = create<IUserStore>()(
       isSuccess: false,
       isError: false,
       error: "",
-user: {} as User,
-profile: null,
 
-accessToken: "",
-refreshToken: "",
-logout:  () => {
+      user: {} as User,
+      profile: null,
+
+      accessToken: "",
+      refreshToken: "",
+
+      logout: () => {
         set({
           isLoading: false,
           isSuccess: false,
@@ -50,12 +54,12 @@ logout:  () => {
           accessToken: "",
           refreshToken: "",
         });
-        localStorage.clear();
 
-        // 3. Force route away to the login page
+        localStorage.clear();
         window.location.href = "/auth/login";
       },
-      loginUser: async (reqData) => {
+
+      loginUser: async (reqData: IuserLoginRequest) => {
         set({
           isLoading: true,
           isSuccess: false,
@@ -65,7 +69,6 @@ logout:  () => {
 
         try {
           const response = await api.post("/users/Login", reqData);
-
           const data: IuserLoginResponse = response.data;
 
           if (!data.is_sucess) {
@@ -75,7 +78,6 @@ logout:  () => {
               isError: true,
               error: data.messege,
             });
-
             return;
           }
 
@@ -84,7 +86,6 @@ logout:  () => {
             isSuccess: true,
             isError: false,
             error: "",
-
             accessToken: data.data.Access_token,
             refreshToken: data.data.Refresh_token,
             user: data.data.User,
@@ -107,46 +108,56 @@ logout:  () => {
           });
         }
       },
-      // to get the user data from the access token
-    WhoAmI: async () => {
-  try {
-    set({
-      isLoading: true,
-      isSuccess: false,
-      isError: false,
-      error: "",
-    });
 
-    const response = await api.get("/users/whoami");
+      WhoAmI: async () => {
+        set({
+          isLoading: true,
+          isSuccess: false,
+          isError: false,
+          error: "",
+        });
 
-    const data: IwhoAmIResponse = response.data;
+        try {
+          const response = await api.get("/users/whoami");
+          const data: IwhoAmIResponse = response.data;
 
-    set({
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-      error: "",
-      profile: data.data,
-    });
-    
-  } catch (error) {
-    let message = DEFUALT_ERROR_MESSEGE;
+          set({
+            isLoading: false,
+            isSuccess: true,
+            isError: false,
+            error: "",
+            profile: data.data,
+          });
+        } catch (error) {
+          let message = DEFUALT_ERROR_MESSEGE;
 
-    if (error instanceof AxiosError) {
-      message =
-        error.response?.data?.messege ||
-        error.response?.data?.message ||
-        DEFUALT_ERROR_MESSEGE;
-    }
+          if (error instanceof AxiosError) {
+            message =
+              error.response?.data?.messege ||
+              error.response?.data?.message ||
+              DEFUALT_ERROR_MESSEGE;
+          }
 
-    set({
-      isLoading: false,
-      isSuccess: false,
-      isError: true,
-      error: message,
-    });
-  }
-},
+          set({
+            isLoading: false,
+            isSuccess: false,
+            isError: true,
+            error: message,
+          });
+        }
+      },
+
+      SetUserData: (data: IrefreshTokenResponse) => {
+        set({
+          isLoading: false,
+          isSuccess: true,
+          isError: false,
+          error: "",
+          accessToken: data.data.Access_token,
+          refreshToken: data.data.Refresh_token,
+          user: data.data.User,
+        });
+      },
     }),
     {
       name: "userStore",
