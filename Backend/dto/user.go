@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/ahmed/capstone_project/models"
+import (
+	"time"
+
+	"github.com/ahmed/capstone_project/models"
+)
 
 type CreateUserDto struct {
 	FullName     string      `json:"fullname" binding:"required"`
@@ -15,9 +19,13 @@ type LoginUserRequest struct {
 }
 
 type UserProfileResponse struct {
-	FullName     string `json:"fullname"`
-	EmailAddress string `json:"emailaddress"`
-	Role         string `json:"role"`
+	FullName     string    `json:"fullname"`
+	EmailAddress string    `json:"emailaddress"`
+	Role         string    `json:"role"`
+	CreatedAt    time.Time `json:"created_at"`
+	LastLogin    time.Time `json:"last_login"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	DeletedAt    time.Time `json:"deleted_at"`
 }
 
 type LoginUserResponse struct {

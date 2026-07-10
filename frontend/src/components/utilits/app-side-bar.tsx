@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import { NavMain } from "./nav-main"
+import { NavUser } from "./nav-user"
 
 const data = {
   navMain: [
@@ -121,7 +122,7 @@ export function AppSidebar({
       </SidebarContent>
 
       <SidebarFooter>
-        {/* User Profile */}
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
