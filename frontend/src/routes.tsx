@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { Register } from './pages/authentication/register'
 import { Login } from './pages/authentication/login'
 import { Dashboard } from './pages/dashboard'
+import { ListClasses } from './pages/dashboard/classes/list-classes'
 
 
 export const routes = createBrowserRouter([
@@ -26,8 +27,17 @@ export const routes = createBrowserRouter([
 //./Dashboard 
 
 {
-    path : "/dashboard",
-    element : <Dashboard/>
+    path : "dashboard",
+    children : [
+        {
+            index : true,
+            element : <Dashboard/>
+        },
+           {
+            path : "classes",
+            element : <ListClasses/>
+           }
+    ]
 }
 
 ])

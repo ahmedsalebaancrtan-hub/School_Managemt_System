@@ -12,6 +12,10 @@ export const DEFUALT_ERROR_MESSEGE =
 // REQUEST INTERCEPTOR
 api.interceptors.request.use(
   (config) => {
+
+    if (config.url?.includes("/users/Refresh_token")){
+      return config;
+    }
     const token = useUserStore.getState().accessToken;
 
     if (token) {
@@ -29,24 +33,32 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest: any = error.config;
 
-    const { SetUserData, refreshToken } = useUserStore.getState();
+    const { accessToken, refreshToken, SetUserData } =
+      useUserStore.getState();
 
-    // If no response or no request, just fail
-    if (!error.response || !originalRequest) {
+    // must have request + response
+    if (!originalRequest || !error.response) {
       return Promise.reject(error);
     }
 
-    // Don't try to refresh if it's NOT 401
+    // ONLY handle 401
     if (error.response.status !== 401) {
       return Promise.reject(error);
     }
 
-    // Prevent infinite loop: don't refresh on refresh endpoint itself
+    // prevent retry loop
+    if (originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    // do NOT refresh if already calling refresh endpoint
     if (originalRequest.url?.includes("/users/Refresh_token")) {
       localStorage.clear();
       window.location.href = "/auth/login";
       return Promise.reject(error);
     }
+
+    originalRequest._retry = true;
 
     try {
       const response = await api.post(
@@ -64,17 +76,15 @@ api.interceptors.response.use(
       // update store
       SetUserData(data);
 
-      // update original request with new token
-      originalRequest.headers.Authorization = `Bearer ${data.data.Access_token}`;
+      // update request header
+      originalRequest.headers.Authorization =
+        `Bearer ${data.data.Access_token}`;
 
       // retry original request
       return api(originalRequest);
     } catch (err) {
-      console.log("refresh token failed");
-
-      localStorage.clear();
-      window.location.href = "/auth/login";
-
+      // localStorage.clear();
+      // window.location.href = "/auth/login";
       return Promise.reject(err);
     }
   }
