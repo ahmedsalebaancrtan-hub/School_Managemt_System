@@ -10,7 +10,7 @@ export const Dashboard = () => {
         <AppSidebar/>
         <SidebarTrigger className="-ml-1" />
 
-  <div className="w-full">
+  <div className="w-full p-4">
     <Outlet/>
 
   </div>

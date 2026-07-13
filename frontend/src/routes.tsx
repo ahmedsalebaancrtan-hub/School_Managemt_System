@@ -28,11 +28,12 @@ export const routes = createBrowserRouter([
 
 {
     path : "dashboard",
+    element : <Dashboard/>,
     children : [
-        {
-            index : true,
-            element : <Dashboard/>
-        },
+           {
+            index: true,
+            element: <div>Dashboard Overview</div>
+           },
            {
             path : "classes",
             element : <ListClasses/>
