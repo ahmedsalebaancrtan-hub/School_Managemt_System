@@ -1,5 +1,5 @@
 import { api, DEFUALT_ERROR_MESSEGE } from "@/lib/api";
-import type { IClass, IListClassessResponse } from "@/types/classes";
+import type { IClass, ICreateClassRequest, IcreateClassResponse, IListClassessResponse } from "@/types/classes";
 import { AxiosError } from "axios";
 import { create } from "zustand";
 
@@ -11,6 +11,7 @@ interface ClassStore {
     isError : boolean,
     errorMsg : string,
     ListClasses : () => void
+    CreateClass : (data : ICreateClassRequest) => void
 }
 
 export const useClassStore = create<ClassStore>((set) => ({
@@ -44,7 +45,7 @@ export const useClassStore = create<ClassStore>((set) => ({
 
             set({
                 isLoading : false,
-                isSucess : true,
+                // isSucess : true,
                 isError : false, 
                 errorMsg : "",
                 data : data.data
@@ -66,7 +67,54 @@ export const useClassStore = create<ClassStore>((set) => ({
         }
 
 
-    }
+    },
+    CreateClass: async (reqData) => {
+        try {
+            set({
+                isLoading: true,
+                isSucess: false,
+                isError: false,
+                errorMsg: "",
+            });
 
+            const response = await api.post("/class/create", reqData);
+            const data: IcreateClassResponse = response.data;
 
-}))
+            if (!data.is_sucess) {
+                set({
+                    isLoading: false,
+                    isSucess: false,
+                    isError: true,
+                    errorMsg: data.messege,
+                });
+                return;
+            }
+
+            set({
+                isLoading: false,
+                isSucess: true,
+                isError: false,
+                errorMsg: "",
+            });
+
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                set({
+                    isLoading: false,
+                    isSucess: false,
+                    isError: true,
+                    errorMsg:
+                        error.response?.data?.messege ||
+                        DEFUALT_ERROR_MESSEGE,
+                });
+            } else {
+                set({
+                    isLoading: false,
+                    isSucess: false,
+                    isError: true,
+                    errorMsg: DEFUALT_ERROR_MESSEGE,
+                });
+            }
+        }
+    },
+}));
