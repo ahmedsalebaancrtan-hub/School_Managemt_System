@@ -3,6 +3,7 @@ import { Register } from './pages/authentication/register'
 import { Login } from './pages/authentication/login'
 import { Dashboard } from './pages/dashboard'
 import { ListClasses } from './pages/dashboard/classes/list-classes'
+import CreateClass from './pages/dashboard/classes/create-class'
 
 
 export const routes = createBrowserRouter([
@@ -37,6 +38,10 @@ export const routes = createBrowserRouter([
            {
             path : "classes",
             element : <ListClasses/>
+           },
+           {
+            path : "classes/create",
+            element : <CreateClass/>
            }
     ]
 }

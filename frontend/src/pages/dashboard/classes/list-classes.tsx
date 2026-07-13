@@ -9,14 +9,18 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import ClassRowActions from "@/components/utilits/class-actions"
+import ComponentHeader from "@/components/utilits/component-header"
 import { AlertDestructive } from "@/components/utilits/errorComponent"
 import Spinner from "@/components/utilits/spinner"
 import { useClassStore } from "@/store/class-store"
 import dayjs  from "dayjs"
 import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 
 export const ListClasses = () => {
-  const {isLoading,isSucess, isError,errorMsg, ListClasses,data } = useClassStore()
+  const {isLoading, isError, ListClasses,data } = useClassStore()
+  const navigate = useNavigate()
+  const colomns = ["ID","Title","Academic_year","CreatedAt","Actions"]
 
 
   useEffect(() => {
@@ -28,16 +32,8 @@ export const ListClasses = () => {
     <Spinner />
   ) : (
     <div>
-      <div className="header flex items-center justify-between mb-6">
-          <div className="text">
-            <h1 className="title text-2xl font-bold">List Classes</h1>
-            <p className="description text-sm text-gray-500 my-1">Here you can view all the classes in the system.</p>
-        </div>
-        <div className="btn">
-            <Button>create class</Button>
-        </div>
-      </div>
-
+      <ComponentHeader
+       title="Classes" description="A list of all classes" to="/dashboard/classes/create" btnText="Create Class"/>
       {isError ? (
         <AlertDestructive errorTitle="errorMsg"/>
       ) : (
@@ -45,18 +41,16 @@ export const ListClasses = () => {
   <TableCaption>A list of your recent invoices.</TableCaption>
   <TableHeader>
     <TableRow>
-      <TableHead className="w-25">ID</TableHead>
-      <TableHead>Title</TableHead>
-      <TableHead>Academic_year</TableHead>
-      <TableHead>CreatedAt</TableHead>
-      <TableHead>Actions</TableHead>
-    </TableRow>
+   {colomns.map((col) => (
+    <TableHead key={col}>{col}</TableHead>
+   ))}
+    </TableRow >
   </TableHeader>
   <TableBody>
   {data.map((cls)=> {
     return (
       
-    <TableRow>
+    <TableRow key={cls.id} className="hover:bg-gray-100">
       <TableCell className="font-medium">{cls.id}</TableCell>
       <TableCell>{cls.title}</TableCell>
       <TableCell>{cls.AcademicYear}</TableCell>
