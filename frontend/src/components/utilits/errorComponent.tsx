@@ -6,14 +6,12 @@ import {
   AlertTitle,
 } from "@/components/ui/alert"
 
-export function AlertDestructive({errorTitle , errorDescription}: {errorTitle : string, errorDescription : string}) {
+export function AlertDestructive({errorTitle , errorDescription}: {errorTitle : string, errorDescription? : string}) {
   return (
     <Alert variant="destructive" className="max-w-md">
       <AlertCircleIcon />
       <AlertTitle>{errorTitle}</AlertTitle>
-      <AlertDescription>
-       {errorDescription}
-      </AlertDescription>
+      {errorDescription ? <AlertDescription>{errorDescription}</AlertDescription> : null}
     </Alert>
   )
 }
