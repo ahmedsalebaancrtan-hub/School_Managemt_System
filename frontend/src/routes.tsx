@@ -6,6 +6,8 @@ import { ListClasses } from './pages/dashboard/classes/list-classes'
 import CreateClass from './pages/dashboard/classes/create-class'
 import ViewClass from './pages/dashboard/classes/view-class'
 import UpdateClass from './pages/dashboard/classes/update-class'
+import { ListFamily } from './pages/dashboard/family/listfamily'
+import { CreateFamily } from './pages/dashboard/family/create-family'
 
 
 export const routes = createBrowserRouter([
@@ -52,6 +54,14 @@ export const routes = createBrowserRouter([
            {
             path : "classes/:id",
             element : <ViewClass/>
+           },
+           {
+            path : "family",
+            element : <ListFamily/>
+           },
+           {
+            path : "family/create",
+            element : <CreateFamily/>
            }
     ]
 }
