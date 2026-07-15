@@ -36,7 +36,8 @@ const UpdateClass = () => {
     if (id) {
       GetClassDetailsById(id);
     }
-  }, [id]);
+  }, [id, ResetStatus, GetClassDetailsById]);
+
 
   useEffect(() => {
     if (ClassDetails?.id) {
@@ -45,11 +46,13 @@ const UpdateClass = () => {
     }
   }, [ClassDetails]);
 
+
   useEffect(() => {
     if (isError) {
       toast.error(errorMsg);
     }
   }, [isError, errorMsg]);
+
 
   useEffect(() => {
     if (isUpdateSuccess) {
@@ -58,10 +61,18 @@ const UpdateClass = () => {
     }
   }, [isUpdateSuccess, navigate]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     if (!id) return;
+
+    if (!title || !academicYear) {
+      toast.error("Please fill all fields");
+      return;
+    }
 
     const data: ICreateClassRequest = {
       title,
@@ -71,46 +82,105 @@ const UpdateClass = () => {
     UpdateClass(id, data);
   };
 
+
   return (
-    <div>
+    <div className="space-y-6">
+
       <ComponentHeader
         title="Update Class"
-        description="Update class details"
+        description="Edit class information and save changes."
         to="/dashboard/classes"
         btnText="Back to Classes"
       />
 
-      <form onSubmit={handleSubmit} className="space-y-5 mt-6">
-        <div>
-          <Label>Class Title</Label>
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+
+      <div className="max-w-2xl rounded-2xl border bg-white shadow-sm">
+
+        <div className="border-b px-6 py-5">
+          <h2 className="text-xl font-semibold">
+            Class Information
+          </h2>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            Update the details below.
+          </p>
         </div>
 
-        <div>
-          <Label>Academic Year</Label>
-          <Input
-            value={academicYear}
-            onChange={(e) => setAcademicYear(e.target.value)}
-          />
-        </div>
 
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate("/dashboard/classes")}
-          >
-            Cancel
-          </Button>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 p-6"
+        >
 
-          <Button disabled={isLoading} type="submit">
-            {isLoading ? <Spinner /> : "Update Class"}
-          </Button>
-        </div>
-      </form>
+          <div className="space-y-2">
+            <Label htmlFor="title">
+              Class Title
+            </Label>
+
+            <Input
+              id="title"
+              placeholder="Example: Grade 10"
+              value={title}
+              disabled={isLoading}
+              onChange={(e) =>
+                setTitle(e.target.value)
+              }
+            />
+          </div>
+
+
+          <div className="space-y-2">
+            <Label htmlFor="academicYear">
+              Academic Year
+            </Label>
+
+            <Input
+              id="academicYear"
+              placeholder="Example: 2026-2027"
+              value={academicYear}
+              disabled={isLoading}
+              onChange={(e) =>
+                setAcademicYear(e.target.value)
+              }
+            />
+          </div>
+
+
+          <div className="flex justify-end gap-3 border-t pt-5">
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isLoading}
+              onClick={() =>
+                navigate("/dashboard/classes")
+              }
+            >
+              Cancel
+            </Button>
+
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="min-w-[140px]"
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Spinner />
+                  Updating...
+                </div>
+              ) : (
+                "Update Class"
+              )}
+            </Button>
+
+          </div>
+
+        </form>
+
+      </div>
+
     </div>
   );
 };
