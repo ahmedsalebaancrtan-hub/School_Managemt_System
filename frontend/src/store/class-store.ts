@@ -1,173 +1,194 @@
 import { api, DEFUALT_ERROR_MESSEGE } from "@/lib/api";
-import type { IClass, ICreateClassRequest, IClassResponse, IListClassessResponse } from "@/types/classes";
+import type {
+  IClass,
+  IClassResponse,
+  ICreateClassRequest,
+  IListClassessResponse,
+} from "@/types/classes";
 import { AxiosError } from "axios";
 import { create } from "zustand";
 
 interface ClassStore {
+  data: IClass[];
+  ClassDetails: IClass;
 
-    data : IClass[],
-    ClassDetails : IClass
-    isLoading : boolean,
-    isSucess : boolean,
-    isError : boolean,
-    errorMsg : string,
-    ListClasses : () => void
-    CreateClass : (data : ICreateClassRequest) => void
-    GetClassDetailsById : (id : string ) => void
+  isLoading: boolean;
+  isCreateSuccess: boolean;
+  isUpdateSuccess: boolean;
+  isError: boolean;
+  errorMsg: string;
+
+  ListClasses: () => Promise<void>;
+  CreateClass: (data: ICreateClassRequest) => Promise<void>;
+  GetClassDetailsById: (id: string) => Promise<void>;
+  UpdateClass: (id: string, data: ICreateClassRequest) => Promise<void>;
+
+  ResetStatus: () => void;
 }
 
 export const useClassStore = create<ClassStore>((set) => ({
-    data : [],
-    ClassDetails : {} as IClass,
-    isLoading : false,
-    isSucess : false,
-    isError : false,
-    errorMsg : "",
+  data: [],
+  ClassDetails: {} as IClass,
 
-    ListClasses : async () =>{
-        try {
-            set({
-                   isLoading : true,
-                isSucess : false,
-                isError : false, 
-                errorMsg : "",
-                
-            })
-            const response = await api.get("/class/list")
-            const data : IListClassessResponse = response.data
+  isLoading: false,
+  isCreateSuccess: false,
+  isUpdateSuccess: false,
+  isError: false,
+  errorMsg: "",
 
-            if(!data.is_sucess) {
-                set({
-                    isLoading : false, 
-                    isSucess : false,
-                    isError : true, 
-                    errorMsg : data.messege
-                })
-                return
-            }
+  ResetStatus: () =>
+    set({
+      isCreateSuccess: false,
+      isUpdateSuccess: false,
+      isError: false,
+      errorMsg: "",
+    }),
 
-            set({
-                isLoading : false,
-                // isSucess : true,
-                isError : false, 
-                errorMsg : "",
-                data : data.data
-            })
-            
-        } catch (error) {
+  ListClasses: async () => {
+    try {
+      set({
+        isLoading: true,
+        isError: false,
+        errorMsg: "",
+      });
 
-            if ( error instanceof AxiosError) {
-                set({
-               isLoading : false,
-                isSucess : false,
-                isError : true, 
-                errorMsg : error?.response?.data?.messege || DEFUALT_ERROR_MESSEGE
-              
-                })
+      const response = await api.get("/class/list");
+      const data: IListClassessResponse = response.data;
 
-            }
-            
-        }
+      if (!data.is_sucess) {
+        set({
+          isLoading: false,
+          isError: true,
+          errorMsg: data.messege,
+        });
+        return;
+      }
 
+      set({
+        isLoading: false,
+        data: data.data,
+      });
+    } catch (error) {
+      set({
+        isLoading: false,
+        isError: true,
+        errorMsg:
+          error instanceof AxiosError
+            ? error.response?.data?.messege || DEFUALT_ERROR_MESSEGE
+            : DEFUALT_ERROR_MESSEGE,
+      });
+    }
+  },
 
-    },
-    CreateClass: async (reqData) => {
-        try {
-            set({
-                isLoading: true,
-                isSucess: false,
-                isError: false,
-                errorMsg: "",
-            });
+  CreateClass: async (reqData) => {
+    try {
+      set({
+        isLoading: true,
+        isCreateSuccess: false,
+        isError: false,
+        errorMsg: "",
+      });
 
-            const response = await api.post("/class/create", reqData);
-            const data: IClassResponse = response.data;
+      const response = await api.post("/class/create", reqData);
+      const data: IClassResponse = response.data;
 
-            if (!data.is_sucess) {
-                set({
-                    isLoading: false,
-                    isSucess: false,
-                    isError: true,
-                    errorMsg: data.messege,
-                });
-                return;
-            }
+      if (!data.is_sucess) {
+        set({
+          isLoading: false,
+          isError: true,
+          errorMsg: data.messege,
+        });
+        return;
+      }
 
-            set({
-                isLoading: false,
-                isSucess: true,
-                isError: false,
-                errorMsg: "",
-                ClassDetails : data.data
-            });
+      set({
+        isLoading: false,
+        isCreateSuccess: true,
+        ClassDetails: data.data,
+      });
+    } catch (error) {
+      set({
+        isLoading: false,
+        isError: true,
+        errorMsg:
+          error instanceof AxiosError
+            ? error.response?.data?.messege || DEFUALT_ERROR_MESSEGE
+            : DEFUALT_ERROR_MESSEGE,
+      });
+    }
+  },
 
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                set({
-                    isLoading: false,
-                    isSucess: false,
-                    isError: true,
-                    errorMsg:
-                        error.response?.data?.messege ||
-                        DEFUALT_ERROR_MESSEGE,
-                });
-            } else {
-                set({
-                    isLoading: false,
-                    isSucess: false,
-                    isError: true,
-                    errorMsg: DEFUALT_ERROR_MESSEGE,
-                });
-            }
-        }
-    },
-    GetClassDetailsById: async (id) => {
-        try {
-            set({
-                isLoading: true,
-                isSucess: false,
-                isError: false,
-                errorMsg: "",
-            });
+  UpdateClass: async (id, reqData) => {
+    try {
+      set({
+        isLoading: true,
+        isUpdateSuccess: false,
+        isError: false,
+        errorMsg: "",
+      });
 
-            const response = await api.get("/class/details/"+ id);
-            const data: IClassResponse = response.data;
+      const response = await api.put(`/class/update/${id}`, reqData);
+      const data: IClassResponse = response.data;
 
-            if (!data.is_sucess) {
-                set({
-                    isLoading: false,
-                    isSucess: false,
-                    isError: true,
-                    errorMsg: data.messege,
-                });
-                return;
-            }
+      if (!data.is_sucess) {
+        set({
+          isLoading: false,
+          isError: true,
+          errorMsg: data.messege,
+        });
+        return;
+      }
 
-            set({
-                isLoading: false,
-                isSucess: true,
-                isError: false,
-                errorMsg: "",
-            });
+      set({
+        isLoading: false,
+        isUpdateSuccess: true,
+        ClassDetails: data.data,
+      });
+    } catch (error) {
+      set({
+        isLoading: false,
+        isError: true,
+        errorMsg:
+          error instanceof AxiosError
+            ? error.response?.data?.messege || DEFUALT_ERROR_MESSEGE
+            : DEFUALT_ERROR_MESSEGE,
+      });
+    }
+  },
 
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                set({
-                    isLoading: false,
-                    isSucess: false,
-                    isError: true,
-                    errorMsg:
-                        error.response?.data?.messege ||
-                        DEFUALT_ERROR_MESSEGE,
-                });
-            } else {
-                set({
-                    isLoading: false,
-                    isSucess: false,
-                    isError: true,
-                    errorMsg: DEFUALT_ERROR_MESSEGE,
-                });
-            }
-        }
-    },
+  GetClassDetailsById: async (id) => {
+    try {
+      set({
+        isLoading: true,
+        isError: false,
+        errorMsg: "",
+      });
+
+      const response = await api.get(`/class/details/${id}`);
+      const data: IClassResponse = response.data;
+
+      if (!data.is_sucess) {
+        set({
+          isLoading: false,
+          isError: true,
+          errorMsg: data.messege,
+        });
+        return;
+      }
+
+      set({
+        isLoading: false,
+        ClassDetails: data.data,
+      });
+    } catch (error) {
+      set({
+        isLoading: false,
+        isError: true,
+        errorMsg:
+          error instanceof AxiosError
+            ? error.response?.data?.messege || DEFUALT_ERROR_MESSEGE
+            : DEFUALT_ERROR_MESSEGE,
+      });
+    }
+  },
 }));

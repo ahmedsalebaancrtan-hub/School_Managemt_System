@@ -24,7 +24,7 @@ const ClassRowActions = ({cls} : {cls : IClass}) => {
     View 
 
   </Button>
-  <Button variant="outline" size="sm">
+  <Button onClick={() => navigate("/dashboard/classes/update/"+ cls.id )} variant="outline" size="sm">
     Edit
 
   </Button>
