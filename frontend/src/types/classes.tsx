@@ -17,7 +17,7 @@ export interface ICreateClassRequest {
     title:        string;
     AcademicYear: string;
 }
-export interface IcreateClassResponse {
+export interface IClassResponse {
     data:      IClass;
     is_sucess: boolean;
     messege:   string;

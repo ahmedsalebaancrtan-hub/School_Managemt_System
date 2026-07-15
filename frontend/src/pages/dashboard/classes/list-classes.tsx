@@ -55,7 +55,7 @@ export const ListClasses = () => {
       <TableCell>{cls.title}</TableCell>
       <TableCell>{cls.AcademicYear}</TableCell>
       <TableCell >{dayjs(cls.Createdat).format("YYYY-MM-DD : HH:mm ")}</TableCell>
-      <TableCell><ClassRowActions /></TableCell>
+      <TableCell><ClassRowActions  cls={cls}/></TableCell>
     </TableRow>
  
     )
