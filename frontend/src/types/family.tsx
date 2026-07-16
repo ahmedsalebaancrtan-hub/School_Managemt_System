@@ -15,3 +15,13 @@ export interface IFamily {
   Createdat: Date;
   UpdatedAt: Date;
 }
+
+
+export interface ICreateFamilyRequest {
+    familyName:       string;
+    Parent_one_Name:  string;
+    Parent_one_phone: string;
+    Parent_two_name:  string;
+    Parent_two_phone: string;
+    address:          string;
+}

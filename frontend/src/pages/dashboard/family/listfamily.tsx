@@ -123,7 +123,7 @@ export const ListFamily = () => {
                       </span>
                     </TableCell>
 
-                    <TableCell className="max-w-[220px] truncate text-muted-foreground">
+                    <TableCell className="max-w-220px truncate text-muted-foreground">
                       {family.address}
                     </TableCell>
 
