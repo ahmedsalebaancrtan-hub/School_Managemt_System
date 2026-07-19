@@ -1,7 +1,7 @@
 export interface IListFamilyResponse {
   data: IFamily[];
   is_success: boolean;
-  message: string;
+  messege: string;
 }
 
 export interface IFamily {
@@ -9,8 +9,8 @@ export interface IFamily {
   familyName: string;
   Parent_one_Name: string;
   parent_one_phone: string;
-  Parent_two_name: string;
-  Parent_two_phone: string;
+  Parent_two_name: string | null;
+  Parent_two_phone: string | null;
   address: string;
   Createdat: Date;
   UpdatedAt: Date;

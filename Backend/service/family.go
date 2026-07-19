@@ -27,8 +27,8 @@ func (svc *FamilyService) CreateFamily(data dto.CreateFamilydto) (int, error) {
 		FamilyName:     data.FamilyName,
 		ParentOneName:  data.ParentOneName,
 		ParentOnePhone: data.ParentOnePhone,
-		ParentTwoName:  data.ParentTwoName,
-		ParentTwoPhone: data.ParentTwoPhone,
+		ParentTwoName:  nilIfEmpty(data.ParentTwoName),
+		ParentTwoPhone: nilIfEmpty(data.ParentTwoPhone),
 		Address:        data.Address,
 	}
 
@@ -51,4 +51,13 @@ func (svc *FamilyService) ListFamily() (int, []models.Family, error) {
 	}
 
 	return http.StatusOK, data, nil
+}
+
+// nilIfEmpty returns nil if the string is empty, otherwise returns a pointer to it.
+// Used so optional fields serialize as null (not "") in JSON.
+func nilIfEmpty(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }

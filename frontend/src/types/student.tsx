@@ -1,10 +1,12 @@
+import type { IFamily } from "./family";
+
 export interface IlistStudentResponse {
-    data:       Datum[];
+    data:      IStudent[];
     is_success: boolean;
-    message:    string;
+    messege:    string;
 }
 
-export interface Datum {
+export interface IStudent  {
     id:           number;
     student_code: string;
     first_name:   string;
@@ -14,17 +16,5 @@ export interface Datum {
     Createdat:    Date;
     UpdatedAt:    Date;
     familyId:     number;
-    family:       Family;
-}
-
-export interface Family {
-    id:               number;
-    familyName:       string;
-    Parent_one_Name:  string;
-    parent_one_phone: string;
-    Parent_two_name:  string;
-    Parent_two_phone: string;
-    address:          string;
-    Createdat:        Date;
-    UpdatedAt:        Date;
+    family:       IFamily;
 }

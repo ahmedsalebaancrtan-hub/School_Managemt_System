@@ -60,7 +60,7 @@ export const useFamilyStore = create<FamilyStore>((set) => ({
         set({
           isLoading: false,
           isError: true,
-          errorMsg: data.message,
+          errorMsg: data.messege,
         });
         return;
       }
@@ -101,7 +101,7 @@ export const useFamilyStore = create<FamilyStore>((set) => ({
         set({
           isLoading: false,
           isError: true,
-          errorMsg: data.message,
+          errorMsg: data.messege,
         });
         return;
       }
